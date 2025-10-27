@@ -76,7 +76,12 @@ export default function GeneratePage() {
       }
     } catch (err) {
       console.error("生图错误:", err);
-      setError(err instanceof Error ? err.message : "生图失败，请重试");
+      // 处理不同类型的错误
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        setError("网络连接失败，请检查网络连接后重试");
+      } else {
+        setError(err instanceof Error ? err.message : "生图失败，请重试");
+      }
     } finally {
       setIsGenerating(false);
     }
