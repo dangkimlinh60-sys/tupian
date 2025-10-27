@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("收到生图请求...");
     const { prompt, size = "2K" } = await request.json();
+    console.log("提示词:", prompt, "尺寸:", size);
 
     if (!prompt) {
       return NextResponse.json(
@@ -21,6 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 调用火山引擎 API
+    console.log("调用火山引擎 API...");
     const response = await fetch(
       "https://ark.cn-beijing.volces.com/api/v3/images/generations",
       {
@@ -40,6 +43,8 @@ export async function POST(request: NextRequest) {
         }),
       }
     );
+
+    console.log("火山引擎响应状态:", response.status);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -63,6 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+    console.log("生成成功，返回图片数量:", data.data?.length || 0);
     return NextResponse.json(data);
   } catch (error) {
     console.error("生图失败:", error);
