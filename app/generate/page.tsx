@@ -12,7 +12,8 @@ interface GeneratedImage {
 export default function GeneratePage() {
   const [prompt, setPrompt] = useState<string>("");
   const [style, setStyle] = useState<string>("realistic");
-  const [size, setSize] = useState<string>("1024x1024");
+  const [size, setSize] = useState<string>("2K");
+  const [error, setError] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
 
@@ -26,10 +27,9 @@ export default function GeneratePage() {
   ];
 
   const sizes = [
-    { value: "512x512", label: "512×512" },
-    { value: "1024x1024", label: "1024×1024" },
-    { value: "1024x1792", label: "1024×1792 (竖版)" },
-    { value: "1792x1024", label: "1792×1024 (横版)" },
+    { value: "1K", label: "1K" },
+    { value: "2K", label: "2K" },
+    { value: "4K", label: "4K" },
   ];
 
   const examplePrompts = [
@@ -43,19 +43,43 @@ export default function GeneratePage() {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
+    setError("");
 
-    // 模拟生成过程
-    setTimeout(() => {
-      // 实际应用中，这里应该调用 AI 生图 API
-      // 例如 DALL-E、Stable Diffusion、Midjourney API 等
-      const mockImage: GeneratedImage = {
-        url: `https://picsum.photos/seed/${Date.now()}/1024/1024`,
-        prompt: prompt,
-        timestamp: Date.now(),
-      };
-      setGeneratedImages([mockImage, ...generatedImages]);
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          size: size,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "生图失败");
+      }
+
+      // 处理火山引擎 API 返回的数据
+      if (data.data && data.data.length > 0) {
+        const newImages = data.data.map((item: any) => ({
+          url: item.url,
+          prompt: prompt,
+          timestamp: Date.now(),
+        }));
+        setGeneratedImages([...newImages, ...generatedImages]);
+      } else {
+        throw new Error("未返回图片数据");
+      }
+    } catch (err) {
+      console.error("生图错误:", err);
+      setError(err instanceof Error ? err.message : "生图失败，请重试");
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const downloadImage = (url: string, prompt: string) => {
@@ -95,11 +119,35 @@ export default function GeneratePage() {
       <main className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Info Banner */}
-          <div className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-8">
+          <div className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-4">
             <p className="text-sm text-green-800 dark:text-green-200">
-              💡 提示：此功能需要集成 AI 生图 API（如 DALL-E、Stable Diffusion、Midjourney）才能实现真实的图片生成功能。当前为演示版本。
+              💡 提示：使用火山引擎 AI 生图 API，请确保已配置 ARK_API_KEY 环境变量。
             </p>
           </div>
+
+          {/* Warning Banner for Model Configuration */}
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mb-8">
+            <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+              ⚠️ 模型配置说明
+            </p>
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              如果遇到"模型不支持图片生成"错误，请确保：
+            </p>
+            <ul className="text-sm text-yellow-800 dark:text-yellow-200 list-disc list-inside mt-2 space-y-1">
+              <li>在火山引擎控制台创建支持<strong>图片生成</strong>的推理接入点</li>
+              <li>将推理接入点 ID 配置到 app/api/generate/route.ts 文件的 model 参数中</li>
+              <li>查看项目根目录的 AI_GENERATE_SETUP.md 文件了解详细配置步骤</li>
+            </ul>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-8">
+              <p className="text-sm text-red-800 dark:text-red-200">
+                ❌ 错误：{error}
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Input */}
