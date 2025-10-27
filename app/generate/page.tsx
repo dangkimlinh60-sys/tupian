@@ -118,28 +118,6 @@ export default function GeneratePage() {
       {/* Main Content */}
       <main className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Info Banner */}
-          <div className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-4">
-            <p className="text-sm text-green-800 dark:text-green-200">
-              💡 提示：使用火山引擎 AI 生图 API，请确保已配置 ARK_API_KEY 环境变量。
-            </p>
-          </div>
-
-          {/* Warning Banner for Model Configuration */}
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mb-8">
-            <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-              ⚠️ 模型配置说明
-            </p>
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              如果遇到"模型不支持图片生成"错误，请确保：
-            </p>
-            <ul className="text-sm text-yellow-800 dark:text-yellow-200 list-disc list-inside mt-2 space-y-1">
-              <li>在火山引擎控制台创建支持<strong>图片生成</strong>的推理接入点</li>
-              <li>将推理接入点 ID 配置到 app/api/generate/route.ts 文件的 model 参数中</li>
-              <li>查看项目根目录的 AI_GENERATE_SETUP.md 文件了解详细配置步骤</li>
-            </ul>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-8">
@@ -350,6 +328,15 @@ export default function GeneratePage() {
           )}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-7xl mx-auto text-center text-gray-500 dark:text-gray-400">
+          <p className="text-sm">
+            © 2025 图片处理工具箱 - 开发者：高鹏
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -92,7 +92,7 @@ export default function Home() {
       <footer className="py-8 px-4 sm:px-6 lg:px-8 mt-12">
         <div className="max-w-7xl mx-auto text-center text-gray-500 dark:text-gray-400">
           <p className="text-sm">
-            © 2025 图片处理工具箱 - 让图片处理更简单
+            © 2025 图片处理工具箱 - 开发者：高鹏
           </p>
         </div>
       </footer>
